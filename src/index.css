@@ -11,3 +11,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.App {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  width: 98vw;
+  height: 95vh;
+}
+
+.hNav {
+  grid-column-start: 1 ;
+  grid-column-end: 2 ;
+ 
+}
+
+.container-fluid {
+  grid-column-start: 2 ;
+  grid-column-end: -1 ;
+}
+
+.line-thru {
+  text-decoration: line-through;
+}
