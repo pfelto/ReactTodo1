@@ -33,3 +33,12 @@ code {
 .line-thru {
   text-decoration: line-through;
 }
+
+.light {
+  background-color: #FFFFFF;
+}
+
+.dark {
+  background-color: #000000;
+  color: #FFFFFF;
+}

@@ -1,12 +1,16 @@
-import React from 'react';
-import TodoApp from './components/TodoApp';
+import React, { createContext, useState } from 'react';
+import TodoFullApp from './components/TodoApp';
+
+export const themeContext = createContext();
 
 function App() {
+  const [theme, setTheme] = useState('light');
   return (
-    <div className="App">
-      <TodoApp />
-    </div>
+    <themeContext.Provider value={{ theme, setTheme }}>
+      <div className={theme === 'light' ? 'App light' : 'App dark'}>
+        <TodoFullApp />
+      </div>
+    </themeContext.Provider>
   );
 }
-
 export default App;

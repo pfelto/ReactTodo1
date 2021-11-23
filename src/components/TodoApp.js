@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { todosData } from '../todos';
 import PropTypes from 'prop-types';
 
 let id = 3;
@@ -76,7 +77,10 @@ Todo.propTypes = {
   changeHandler: PropTypes.func,
 };
 //Need to get the info from text input on click and pass that to todo list to update state
-const AddTodo = () => {
+const AddTodo = ({ clickHandler }) => {
+  const [inputText, setInputText] = useState('');
+  const inputRef = useRef(null);
+
   return (
     <div className="input-group">
       <input
@@ -84,14 +88,21 @@ const AddTodo = () => {
         className="form-control"
         placeholder="Todo"
         aria-label="Todo"
+        ref={inputRef}
+        onChange={(e) => {
+          setInputText(inputRef.current.value);
+        }}
         required
       />
       <button
         className="btn btn-outline-secondary"
         type="button"
         id="button-addon"
+        disabled={inputText.length === 0}
         onClick={(e) => {
-          console.log(e.target.value);
+          clickHandler(inputText);
+          setInputText('');
+          inputRef.current.value = '';
         }}
       >
         +
@@ -100,24 +111,30 @@ const AddTodo = () => {
   );
 };
 
-const TodoApp = () => {
-  const [todos, setTodos] = useState([
-    {
-      id: 0,
+AddTodo.propTypes = {
+  clickHandler: PropTypes.func,
+};
+
+const TodoApp = ({ title, currentTodoList }) => {
+  const [todos, setTodos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setTodos(currentTodoList);
+      setIsLoading(false);
+    }, 3000);
+  }, [currentTodoList]);
+
+  const addTodoHandler = (value) => {
+    const newTodo = {
+      id: id++,
       checked: false,
-      value: 'Hey Slut',
-    },
-    {
-      id: 1,
-      checked: false,
-      value: 'Hey Bitch',
-    },
-    {
-      id: 2,
-      checked: true,
-      value: 'Hey Ho',
-    },
-  ]);
+      value: value,
+    };
+    setTodos([...todos, newTodo]);
+  };
 
   const TodoClickHandler = (id) => {
     const newTodos = todos.filter((todo) => {
@@ -143,40 +160,85 @@ const TodoApp = () => {
   ));
 
   return (
+    <div className="container-fluid">
+      <div className="row">
+        <div className="col text-center">{title}</div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <AddTodo clickHandler={addTodoHandler} />
+        </div>
+      </div>
+      {isLoading === true ? (
+        <div>is Loading... </div>
+      ) : (
+        <div className="row">
+          <div className="col">
+            <div className="list-group">{todoList}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+TodoApp.propTypes = {
+  currentTodoList: PropTypes.array,
+  title: PropTypes.string,
+};
+
+const TodoFullApp = () => {
+  const [todoLists, setTodoLists] = useState([
+    { title: `Todos List 1`, todos: todosData },
+    {
+      title: 'Todos List 2',
+      todos: [
+        {
+          id: 0,
+          checked: false,
+          value: 'Hey Paul',
+        },
+      ],
+    },
+  ]);
+
+  const [currentTodoList, setCurrentTodoList] = useState(todoLists[0]);
+
+  const htmlTodoList = todoLists.map((todoList, index) => (
+    <div className="bg-light border" key={index}>
+      {todoList.title}
+    </div>
+  ));
+
+  console.log(currentTodoList);
+  console.log(currentTodoList.title);
+  console.log(currentTodoList.todos);
+  return (
     <>
       <div className="hNav">
         <div className="vstack">
-          <div className="bg-light border">First Todos List</div>
-          <div className="bg-light border">Second Todos List</div>
-          <div className="bg-light border">Third Todos List</div>
+          {htmlTodoList}
           <div className="bg-light border text-center">
             <button
               className="btn btn-outline-secondary"
               type="button"
               id="button-addon"
+              onClick={() => {
+                const newTodoList = `Todos List`;
+                setTodoLists([...todoLists, { title: newTodoList, todos: [] }]);
+              }}
             >
               +
             </button>
           </div>
         </div>
       </div>
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col text-center">Todos List Header</div>
-        </div>
-        <div className="row">
-          <div className="col">
-            <AddTodo />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            <div className="list-group">{todoList}</div>
-          </div>
-        </div>
-      </div>
+      <TodoApp
+        title={currentTodoList.title}
+        currentTodoList={currentTodoList.todos}
+      />
     </>
   );
 };
 
-export default TodoApp;
+export default TodoFullApp;
